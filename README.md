@@ -1,1 +1,1 @@
-# Hands-on project: cypress-practice
+# Hands-on project: Automation testing with Cypress
