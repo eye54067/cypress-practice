@@ -1,1 +1,1 @@
-# cypress-practice
+# Hands-on project: cypress-practice
