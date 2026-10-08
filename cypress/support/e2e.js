@@ -15,8 +15,3 @@
 
 // Import commands.js using ES2015 syntax:
 import './commands'
-
-beforeEach(() => {
-  cy.log('I run before every test in every spec file!')
-  cy.visit('https://www.saucedemo.com/')
-})

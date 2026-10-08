@@ -5,6 +5,10 @@ describe('Login Page', () => {
             user  = data.users
         })
     })
+    beforeEach('Open Sauce Demo Website', () => {
+        cy.log('I run before every test in every spec file!')
+        cy.visit('https://www.saucedemo.com/')
+    })
     it('Verify login page', () => {
         cy.contains('Swag Labs')
         cy.get('#user-name').should('be.visible').and('be.empty')
