@@ -1,12 +1,39 @@
 {
-  "users": 
-  {
-    "username1": "standard_user",
-    "username2": "locked_out_user",
-    "username3": "problem_user",
-    "username4": "performance_glitch_user",
-    "username5": "error_user",
-    "username6": "visual_user",
-    "password": "secret_sauce"
-  }
+  "user1": 
+    {
+      "username": "standard_user",
+      "products": 
+      {}
+    },
+  "user2":
+    {
+      "username": "locked_out_user",
+      "products":
+      {}
+    },
+  "user3": 
+    {
+      "username": "problem_user",
+      "products":
+      {}
+    },
+  "user4":
+    {
+      "username": "performance_glitch_user",
+      "products":
+      {}
+    },
+  "user5":
+    {
+      "username": "error_user",
+      "products":
+      {}
+    },
+  "user6":
+    {
+      "username": "visual_user",
+      "products": 
+      {}
+    },
+  "password": "secret_sauce"
 }

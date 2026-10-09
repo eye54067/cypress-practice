@@ -1,16 +1,21 @@
 describe('Checkout Page', () => {
-    let user
+    let user1
+    let password
     before('Fetch users data', () => {
         cy.log('I run before every test in every spec file!')
         cy.visit('https://www.saucedemo.com/')
+        cy.clearAllCookies()
+        cy.clearAllLocalStorage()
+        cy.clearAllSessionStorage()
         cy.fixture('data').then((data) => {
-        user = data.users
-        })
+            user1 = data.user1
+            password = data.password
+        })  
     })
-    describe('Checkout with standard user', {testIsolation: false}, () => {
-        before('Login successfully with standard user', () => {
-            cy.get('#user-name').should('be.visible').type(user.username1)
-            cy.get('#password').type(user.password)
+    describe('Checkout with standard user', {testIsolation: false},() => {
+        before('Login successfully with standard user', () => { 
+            cy.get('#user-name').should('be.visible').type(user1.username)
+            cy.get('#password').type(password)
             cy.get('#login-button').click()
             cy.url().should('include', '/inventory')
             cy.contains('Product').should('be.visible')
@@ -18,7 +23,6 @@ describe('Checkout Page', () => {
         after('Logout', () => {
             cy.get('#react-burger-menu-btn').should('be.visible').click()
             cy.get('#logout_sidebar_link').should('be.visible').click()
-            cy.clearCookies()
             cy.url().should('include', '/')
             cy.contains('Swag Labs').should('be.visible')
         })
@@ -48,4 +52,5 @@ describe('Checkout Page', () => {
             cy.contains('Thank you for your order!').should('be.visible')
         })
     })
+
 })
