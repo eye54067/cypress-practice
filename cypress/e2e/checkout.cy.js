@@ -1,5 +1,5 @@
 import {user, password} from '../fixtures/user.json'
-import {product} from '../fixtures/product.json'
+import product from '../fixtures/product.json'
 describe('Checkout flow: Verify which user can complete checkout steps', () => {
     user.forEach((user) => {
         it(`Checkout as ${user.username}`, function() {
@@ -20,6 +20,7 @@ describe('Checkout flow: Verify which user can complete checkout steps', () => {
             cy.get('[data-test="add-to-cart-sauce-labs-bike-light"]').click()
             cy.get('.shopping_cart_link').click()
             cy.get('#checkout').click()
+            // Fill in the checkout information form
             cy.get('#first-name').should('be.empty')
             cy.get('#last-name').should('be.empty')
             cy.get('#postal-code').should('be.empty')
@@ -27,10 +28,28 @@ describe('Checkout flow: Verify which user can complete checkout steps', () => {
             cy.get('#last-name').type('Test')
             cy.get('#postal-code').type('11111')
             cy.get('#continue').click()
+            // Validate overview page
+            cy.url().should('include', '/checkout-step-two')
+            cy.contains('Checkout: Overview').should('be.visible')
+            cy.get('.inventory_item_name').should('have.length', 2)
+            cy.get('.inventory_item_name').should('contain.text', product[0].name)
+            cy.get('.inventory_item_price').should('contain.text', product[0].price)
+            cy.get('.inventory_item_name').should('contain.text', product[1].name)
+            cy.get('.inventory_item_price').should('contain.text', product[1].price)
+            cy.get('.summary_subtotal_label').should('contain.text', `Item total: $${(product[0].price + product[1].price).toFixed(2)}`)
+            cy.get('.summary_tax_label').should('contain.text', 'Tax: $3.20')
+            cy.get('.summary_total_label').should('contain.text', `Total: $${(product[0].price + product[1].price + 3.20).toFixed(2)}`)
             cy.get('[data-test="finish"]').click()
+            // Validate checkout complete page
             cy.url().should('include', '/checkout-complete')
             cy.contains('Checkout: Complete!').should('be.visible')
             cy.contains('Thank you for your order!').should('be.visible')
+            // Logout and clear cookies, local storage, and session storage
+            cy.get('#react-burger-menu-btn').click()
+            cy.get('#logout_sidebar_link').click()
+            cy.clearAllCookies()
+            cy.clearAllLocalStorage()
+            cy.clearAllSessionStorage()
         })
     })
 })
@@ -232,7 +251,5 @@ describe('Checkout step 1: Validate mandatory field for your information form', 
             cy.get('[data-test="error"]').should('be.visible')
             cy.contains('Error: First Name is required').should('be.visible')
         })   
-    })
-    
-    
+    })    
 })
