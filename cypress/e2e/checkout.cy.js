@@ -1,24 +1,29 @@
 import {user, password} from '../fixtures/user.json'
 import product from '../fixtures/product.json'
-describe('Checkout flow: Verify which user can complete checkout steps', () => {
+describe('Checkout with all 6 products for every test user', () => {
     user.forEach((user) => {
         it(`Checkout as ${user.username}`, function() {
-            cy.visit('https://www.saucedemo.com/')
-            cy.clearAllCookies()
-            cy.clearAllLocalStorage()
-            cy.clearAllSessionStorage()
-            cy.get('#user-name').type(user.username)
-            cy.get('#password').type(password)
-            cy.get('#login-button').click()
+            cy.login(user.username, password)
             cy.get('[data-test="error"], #inventory_container').then((element) => {
                 if (element.is('[data-test="error"]')) {
                     cy.log(`Login failed for ${user.username}`)
                     this.skip()
                 }
             })
-            cy.get('[data-test="add-to-cart-sauce-labs-backpack"]').click()
-            cy.get('[data-test="add-to-cart-sauce-labs-bike-light"]').click()
+            //Validate inventory page
+            cy.url().should('include', '/inventory.html')
+            cy.get('.inventory_item_name').should('have.length', 6)
+            // Add all products to cart and proceed to checkout
+            cy.get('#add-to-cart-sauce-labs-backpack').click()
+            cy.get('#add-to-cart-sauce-labs-bike-light').click()
+            cy.get('#add-to-cart-sauce-labs-bolt-t-shirt').click()
+            cy.get('#add-to-cart-sauce-labs-fleece-jacket').click()
+            cy.get('#add-to-cart-sauce-labs-onesie').click()
+            cy.get('[id="add-to-cart-test.allthethings()-t-shirt-(red)"]').click()
             cy.get('.shopping_cart_link').click()
+            // Validate cart page
+            cy.url().should('include', '/cart.html')
+            cy.get('.cart_item').should('have.length', 6)
             cy.get('#checkout').click()
             // Fill in the checkout information form
             cy.get('#first-name').should('be.empty')
@@ -31,15 +36,22 @@ describe('Checkout flow: Verify which user can complete checkout steps', () => {
             // Validate overview page
             cy.url().should('include', '/checkout-step-two')
             cy.contains('Checkout: Overview').should('be.visible')
-            cy.get('.inventory_item_name').should('have.length', 2)
-            cy.get('.inventory_item_name').should('contain.text', product[0].name)
-            cy.get('.inventory_item_price').should('contain.text', product[0].price)
-            cy.get('.inventory_item_name').should('contain.text', product[1].name)
-            cy.get('.inventory_item_price').should('contain.text', product[1].price)
-            cy.get('.summary_subtotal_label').should('contain.text', `Item total: $${(product[0].price + product[1].price).toFixed(2)}`)
-            cy.get('.summary_tax_label').should('contain.text', 'Tax: $3.20')
-            cy.get('.summary_total_label').should('contain.text', `Total: $${(product[0].price + product[1].price + 3.20).toFixed(2)}`)
-            cy.get('[data-test="finish"]').click()
+            cy.get('.inventory_item_name').should('have.length', 6)
+            product.forEach((item) => {
+                cy.contains('.cart_item', item.name)
+                .find('.inventory_item_price')
+                .should('contain.text', item.price.toFixed(2))
+            })
+            let itemTotal = 0
+            product.forEach((item) => {
+                itemTotal += item.price
+            })
+            const tax = Number(itemTotal * 0.08)
+            const total = (itemTotal + tax).toFixed(2)
+            cy.get('.summary_subtotal_label').should('contain.text', `Item total: $${itemTotal.toFixed(2)}`)
+            cy.get('.summary_tax_label').should('contain.text', 'Tax: $' + tax.toFixed(2))
+            cy.get('.summary_total_label').should('contain.text', 'Total: $' + total)
+            cy.get('#finish').click()
             // Validate checkout complete page
             cy.url().should('include', '/checkout-complete')
             cy.contains('Checkout: Complete!').should('be.visible')
@@ -56,13 +68,7 @@ describe('Checkout flow: Verify which user can complete checkout steps', () => {
 describe('Checkout step 1: Validate mandatory field for your information form', () => {
     user.forEach((user) => {
         it(`Verify error message after checkout with missing first name for ${user.username}`, function() {
-            cy.visit('https://www.saucedemo.com/')
-            cy.clearAllCookies()
-            cy.clearAllLocalStorage()
-            cy.clearAllSessionStorage()
-            cy.get('#user-name').type(user.username)
-            cy.get('#password').type(password)
-            cy.get('#login-button').click()
+            cy.login(user.username, password)
             cy.get('[data-test="error"], #inventory_container').then((element) => {
                 if (element.is('[data-test="error"]')) {
                     cy.log(`Login failed for ${user.username}`)
@@ -85,13 +91,7 @@ describe('Checkout step 1: Validate mandatory field for your information form', 
     })
     user.forEach((user) => {
         it(`Verify error message after checkout with missing last name for ${user.username}`, function() {
-            cy.visit('https://www.saucedemo.com/')
-            cy.clearAllCookies()
-            cy.clearAllLocalStorage()
-            cy.clearAllSessionStorage()
-            cy.get('#user-name').type(user.username)
-            cy.get('#password').type(password)
-            cy.get('#login-button').click()
+            cy.login(user.username, password)
             cy.get('[data-test="error"], #inventory_container').then((element) => {
                 if (element.is('[data-test="error"]')) {
                     cy.log(`Login failed for ${user.username}`)
@@ -114,13 +114,7 @@ describe('Checkout step 1: Validate mandatory field for your information form', 
     })
     user.forEach((user) => {
         it(`Verify error message after checkout with missing postal code for ${user.username}`, function() {
-            cy.visit('https://www.saucedemo.com/')
-            cy.clearAllCookies()
-            cy.clearAllLocalStorage()
-            cy.clearAllSessionStorage()
-            cy.get('#user-name').type(user.username)
-            cy.get('#password').type(password)
-            cy.get('#login-button').click()
+            cy.login(user.username, password)
             cy.get('[data-test="error"], #inventory_container').then((element) => {
                 if (element.is('[data-test="error"]')) {
                     cy.log(`Login failed for ${user.username}`)
@@ -143,13 +137,7 @@ describe('Checkout step 1: Validate mandatory field for your information form', 
     })
     user.forEach((user) => {
         it(`Verify error message after checkout with missing first name and last name for ${user.username}`, function() {
-            cy.visit('https://www.saucedemo.com/')
-            cy.clearAllCookies()
-            cy.clearAllLocalStorage()
-            cy.clearAllSessionStorage()
-            cy.get('#user-name').type(user.username)
-            cy.get('#password').type(password)
-            cy.get('#login-button').click()
+            cy.login(user.username, password)
             cy.get('[data-test="error"], #inventory_container').then((element) => {
                 if (element.is('[data-test="error"]')) {
                     cy.log(`Login failed for ${user.username}`)
@@ -171,13 +159,7 @@ describe('Checkout step 1: Validate mandatory field for your information form', 
     })
     user.forEach((user) => {
         it(`Verify error message after checkout with missing last name and postal code for ${user.username}`, function() {
-            cy.visit('https://www.saucedemo.com/')
-            cy.clearAllCookies()
-            cy.clearAllLocalStorage()
-            cy.clearAllSessionStorage()
-            cy.get('#user-name').type(user.username)
-            cy.get('#password').type(password)
-            cy.get('#login-button').click()
+            cy.login(user.username, password)
             cy.get('[data-test="error"], #inventory_container').then((element) => {
                 if (element.is('[data-test="error"]')) {
                     cy.log(`Login failed for ${user.username}`)
@@ -199,13 +181,7 @@ describe('Checkout step 1: Validate mandatory field for your information form', 
     })
     user.forEach((user) => {
         it(`Verify error message after checkout with missing first name and postal code for ${user.username}`, function() {
-            cy.visit('https://www.saucedemo.com/')
-            cy.clearAllCookies()
-            cy.clearAllLocalStorage()
-            cy.clearAllSessionStorage()
-            cy.get('#user-name').type(user.username)
-            cy.get('#password').type(password)
-            cy.get('#login-button').click()
+            cy.login(user.username, password)
             cy.get('[data-test="error"], #inventory_container').then((element) => {
                 if (element.is('[data-test="error"]')) {
                     cy.log(`Login failed for ${user.username}`)
@@ -227,13 +203,7 @@ describe('Checkout step 1: Validate mandatory field for your information form', 
     })
     user.forEach((user) => {
         it(`Verify error message after checkout with missing all mandatoy fields for ${user.username}`, function() {
-            cy.visit('https://www.saucedemo.com/')
-            cy.clearAllCookies()
-            cy.clearAllLocalStorage()
-            cy.clearAllSessionStorage()
-            cy.get('#user-name').type(user.username)
-            cy.get('#password').type(password)
-            cy.get('#login-button').click()
+            cy.login(user.username, password)
             cy.get('[data-test="error"], #inventory_container').then((element) => {
                 if (element.is('[data-test="error"]')) {
                     cy.log(`Login failed for ${user.username}`)
