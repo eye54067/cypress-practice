@@ -1,4 +1,4 @@
-import {user, password} from '../fixtures/user.json'
+import { user, password } from '../fixtures/user.json'
 import product from '../fixtures/product.json'
 
 describe('Cart Validation', () => {

@@ -19,6 +19,6 @@
   },
   "homepage": "https://github.com/eye54067/cypress-practice#readme",
   "devDependencies": {
-    "cypress": "^16.1.1"
+    "cypress": "^16.3.0"
   }
 }
